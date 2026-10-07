@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gogo & Gigi - Our Love Story</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display & Great Vibes & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind Custom Theme Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: {
+                            light: '#FCE7E6',
+                            DEFAULT: '#E0A996',
+                            dark: '#C8836E',
+                            deep: '#9E5B48'
+                        },
+                        romanticRed: '#8B263E',
+                        softPink: '#FFF0F3',
+                        warmBlush: '#F9D5D8'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        script: ['Great Vibes', 'cursive'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFF0F3;
+            color: #4A3B3C;
+            overflow-x: hidden;
+        }
+        
+        .font-script {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Heart flowing canvas background */
+        #heart-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glassmorphism card effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(224, 169, 150, 0.3);
+            box-shadow: 0 20px 40px rgba(139, 38, 62, 0.08);
+        }
+
+        /* Polaroid card styling with tilt */
+        .polaroid {
+            background: white;
+            padding: 1rem 1rem 2.5rem 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: grab;
+            user-select: none;
+            position: relative;
+        }
+
+        .polaroid:active {
+            cursor: grabbing;
+        }
+
+        .polaroid:hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.02);
+            box-shadow: 0 20px 35px rgba(139, 38, 62, 0.2);
+            z-index: 50;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF0F3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E0A996;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C8836E;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 15px rgba(224,169,150,0.8)); }
+        }
+
+        .animate-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-roseGold-light selection:text-romanticRed">
+
+    <!-- Heart Flowing Background Canvas -->
+    <canvas id="heart-canvas"></canvas>
+
+    <!-- Floating Music & Audio Controller -->
+    <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
+        <button id="musicToggle" class="glass-card px-4 py-2.5 rounded-full flex items-center gap-2 text-romanticRed hover:bg-white transition-all shadow-lg text-sm font-medium">
+            <i class="fa-solid fa-music animate-bounce"></i>
+            <span id="musicText">Play Love Melody</span>
+        </button>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 py-20">
+        <div class="glass-card p-8 md:p-14 rounded-3xl max-w-2xl w-full mx-auto transform transition-all duration-700 hover:shadow-2xl">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-roseGold-light text-romanticRed font-medium text-xs tracking-widest uppercase mb-6">
+                Our Forever Chapter
+            </span>
+            <h1 class="font-script text-6xl md:text-8xl text-romanticRed mb-4 animate-glow">
+                Gogo & Gigi
+            </h1>
+            <p class="font-serif italic text-xl md:text-2xl text-roseGold-deep mb-8">
+                "Every second with you is a melody written in the stars."
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 text-sm font-medium text-gray-700 mb-8">
+                <div class="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-xl border border-roseGold/20">
+                    <i class="fa-solid fa-calendar-days text-romanticRed"></i>
+                    <span>October 9 — First Glance</span>
+                </div>
+                <div class="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-xl border border-roseGold/20">
+                    <i class="fa-solid fa-heart text-romanticRed"></i>
+                    <span>October 23 — "I Love You"</span>
+                </div>
+            </div>
+            <a href="#story" class="inline-flex items-center gap-2 bg-romanticRed text-white px-8 py-3.5 rounded-full font-medium hover:bg-roseGold-deep transition-all shadow-lg hover:shadow-xl">
+                <span>Explore Our Journey</span>
+                <i class="fa-solid fa-arrow-down text-xs"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Timeline & Key Dates Section -->
+    <section id="story" class="relative z-10 max-w-5xl mx-auto px-4 py-20">
+        <div class="text-center mb-16">
+            <h2 class="font-serif text-4xl md:text-5xl text-romanticRed font-bold mb-4">Our Love Milestones</h2>
+            <p class="text-roseGold-deep font-medium max-w-xl mx-auto">Moments that redefined our worlds and brought our hearts together.</p>
+        </div>
+
+        <div class="space-y-12 relative before:absolute before:inset-0 before:left-1/2 before:-translate-x-1/2 before:w-0.5 before:bg-roseGold/40 hidden md:block"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+            <!-- Milestone 1: October 9 -->
+            <div class="glass-card p-8 rounded-3xl relative hover:border-romanticRed/40 transition-all group">
+                <div class="absolute -top-4 -left-4 bg-romanticRed text-white w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-md group-hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-map-pin text-lg"></i>
+                </div>
+                <span class="text-xs font-bold tracking-wider text-roseGold-deep uppercase block mb-1">October 9</span>
+                <h3 class="font-serif text-2xl text-romanticRed font-bold mb-3">The Day We Met</h3>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    The magical moment Gogo first laid eyes on Gigi. A simple meeting place that transformed into the anchor of our entire universe. Everything shifted into vibrant color.
+                </p>
+                <div class="flex items-center gap-2 text-xs text-roseGold-deep bg-roseGold-light/50 px-3 py-1.5 rounded-lg w-fit">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>First Meeting Spot</span>
+                </div>
+            </div>
+
+            <!-- Milestone 2: October 23 -->
+            <div class="glass-card p-8 rounded-3xl relative hover:border-romanticRed/40 transition-all group md:translate-y-8">
+                <div class="absolute -top-4 -left-4 bg-romanticRed text-white w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-md group-hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-face-smile-hearts text-lg"></i>
+                </div>
+                <span class="text-xs font-bold tracking-wider text-roseGold-deep uppercase block mb-1">October 23</span>
+                <h3 class="font-serif text-2xl text-romanticRed font-bold mb-3">The First "I Love You"</h3>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    "I felt no hesitation in saying I love you." Spoken with absolute clarity, absolute truth, and a heart overflowing with certainty that this was forever.
+                </p>
+                <div class="flex items-center gap-2 text-xs text-roseGold-deep bg-roseGold-light/50 px-3 py-1.5 rounded-lg w-fit">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>Pure Unfiltered Honesty</span>
+                </div>
+            </div>
+
+            <!-- Milestone 3: First Trip Together -->
+            <div class="glass-card p-8 rounded-3xl relative hover:border-romanticRed/40 transition-all group md:col-span-2 md:max-w-2xl md:mx-auto">
+                <div class="absolute -top-4 -left-4 bg-romanticRed text-white w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-md group-hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-plane text-lg"></i>
+                </div>
+                <span class="text-xs font-bold tracking-wider text-roseGold-deep uppercase block mb-1">Unforgettable Adventure</span>
+                <h3 class="font-serif text-2xl text-romanticRed font-bold mb-3">Our First Trip Together</h3>
+                <p class="text-gray-600 leading-relaxed mb-4">
+                    Exploring new horizons hand in hand. From shared laughs over spilled coffee to quiet sunset gazes, every mile traveled deepened our beautiful bond.
+                </p>
+                <div class="flex items-center gap-2 text-xs text-roseGold-deep bg-roseGold-light/50 px-3 py-1.5 rounded-lg w-fit">
+                    <i class="fa-solid fa-compass"></i>
+                    <span>Boundless Horizons</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Draggable / Floating Polaroid Gallery -->
+    <section class="relative z-10 max-w-6xl mx-auto px-4 py-20">
+        <div class="text-center mb-16">
+            <span class="text-xs font-bold tracking-widest text-romanticRed uppercase block mb-2">Memory Lane</span>
+            <h2 class="font-serif text-4xl md:text-5xl text-romanticRed font-bold mb-4">Drag & Explore Our Polaroids</h2>
+            <p class="text-roseGold-deep font-medium max-w-xl mx-auto">Click and drag any polaroid around the screen to browse through our cherished moments together!</p>
+        </div>
+
+        <div id="polaroid-container" class="relative min-h-[500px] flex flex-wrap items-center justify-center gap-8 p-4">
+            <!-- Polaroid 1 -->
+            <div class="polaroid w-64 transform rotate-[-3deg] hover:rotate-0" style="touch-action: none;" draggable="true">
+                <img src="https://placehold.co/240x260/F9D5D8/8B263E?text=First+Date" alt="Memory" class="w-full h-56 object-cover rounded-sm mb-3">
+                <p class="font-script text-2xl text-romanticRed text-center">October 9th Magic ✨</p>
+            </div>
+
+            <!-- Polaroid 2 -->
+            <div class="polaroid w-64 transform rotate-[4deg] hover:rotate-0" style="touch-action: none;" draggable="true">
+                <img src="https://placehold.co/240x260/E0A996/FFFFFF?text=First+Trip" alt="Memory" class="w-full h-56 object-cover rounded-sm mb-3">
+                <p class="font-script text-2xl text-romanticRed text-center">Our First Adventure ✈️</p>
+            </div>
+
+            <!-- Polaroid 3 -->
+            <div class="polaroid w-64 transform rotate-[-2deg] hover:rotate-0" style="touch-action: none;" draggable="true">
+                <img src="https://placehold.co/240x260/FCE7E6/9E5B48?text=October+23" alt="Memory" class="w-full h-56 object-cover rounded-sm mb-3">
+                <p class="font-script text-2xl text-romanticRed text-center">"I Love You" 💖</p>
+            </div>
+
+            <!-- Polaroid 4 -->
+            <div class="polaroid w-64 transform rotate-[3deg] hover:rotate-0" style="touch-action: none;" draggable="true">
+                <img src="https://placehold.co/240x260/8B263E/FFFFFF?text=Gogo+&+Gigi" alt="Memory" class="w-full h-56 object-cover rounded-sm mb-3">
+                <p class="font-script text-2xl text-romanticRed text-center">Forever & Always 🌹</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Love Note Section -->
+    <section class="relative z-10 max-w-3xl mx-auto px-4 py-20">
+        <div class="glass-card p-8 md:p-12 rounded-3xl text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 transform translate-x-8 -translate-y-8 w-32 h-32 bg-roseGold-light rounded-full opacity-50 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 transform -translate-x-8 translate-y-8 w-32 h-32 bg-warmBlush rounded-full opacity-50 pointer-events-none"></div>
+            
+            <i class="fa-solid fa-quote-left text-4xl text-romanticRed/40 mb-4"></i>
+            <h2 class="font-serif text-3xl md:text-4xl text-romanticRed font-bold mb-6">A Letter to Gigi</h2>
+            
+            <p id="loveNoteText" class="text-gray-700 leading-relaxed text-lg mb-8 font-serif italic">
+                "To my dearest Gigi, from the moment our paths crossed on October 9th to every breath since, you have been my greatest blessing. Saying those three words on October 23rd was the easiest truth I've ever spoken. Thank you for walking beside me through every adventure."
+            </p>
+
+            <button id="surpriseBtn" class="bg-romanticRed text-white px-8 py-3.5 rounded-full font-medium hover:bg-roseGold-deep transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2">
+                <i class="fa-solid fa-heart"></i>
+                <span>Open Secret Message</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 text-center py-12 text-roseGold-deep text-sm font-medium">
+        <p class="font-script text-3xl text-romanticRed mb-2">Gogo & Gigi</p>
+        <p>Celebrating Infinite Love • Made with warmth & tenderness</p>
+    </footer>
+
+    <!-- JavaScript Code -->
+    <script>
+        // 1. Heart Flowing Canvas Animation
+        const canvas = document.getElementById('heart-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const hearts = [];
+        const numHearts = 35;
+
+        class FallingHeart {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 14 + 8;
+                this.speedY = Math.random() * 1.5 + 0.8;
+                this.speedX = (Math.random() - 0.5) * 1;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = (Math.random() - 0.5) * 2;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.color = Math.random() > 0.5 ? '#E0A996' : '#8B263E';
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y / 50) * 0.8 + this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > canvas.height + 20) {
+                    this.reset();
+                    this.y = -20;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                ctx.beginPath();
+                let topCurveHeight = this.size * 0.3;
+                ctx.moveTo(0, topCurveHeight);
+                // Top left curve
+                ctx.bezierCurveTo(
+                    0, 0,
+                    -this.size / 2, 0,
+                    -this.size / 2, topCurveHeight
+                );
+                // Bottom left curve
+                ctx.bezierCurveTo(
+                    -this.size / 2, (this.size + topCurveHeight) / 2,
+                    0, (this.size + topCurveHeight) / 1.2,
+                    0, this.size
+                );
+                // Bottom right curve
+                ctx.bezierCurveTo(
+                    0, (this.size + topCurveHeight) / 1.2,
+                    this.size / 2, (this.size + topCurveHeight) / 2,
+                    this.size / 2, topCurveHeight
+                );
+                // Top right curve
+                ctx.bezierCurveTo(
+                    this.size / 2, 0,
+                    0, 0,
+                    0, topCurveHeight
+                );
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < numHearts; i++) {
+            hearts.push(new FallingHeart());
+        }
+
+        function animateHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
+
+        // 2. Interactive Draggable Polaroids for Mouse and Touch
+        const polaroids = document.querySelectorAll('.polaroid');
+        polaroids.forEach(polaroid => {
+            let isDragging = false;
+            let startX, startY;
+            let currentX = 0;
+            let currentY = 0;
+
+            polaroid.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                startX = e.clientX - currentX;
+                startY = e.clientY - currentY;
+                polaroid.setPointerCapture(e.pointerId);
+                polaroid.style.zIndex = 100;
+            });
+
+            polaroid.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                currentX = e.clientX - startX;
+                currentY = e.clientY - startY;
+                polaroid.style.transform = `translate(${currentX}px, ${currentY}px) rotate(0deg) scale(1.05)`;
+            });
+
+            polaroid.addEventListener('pointerup', (e) => {
+                isDragging = false;
+                polaroid.releasePointerCapture(e.pointerId);
+                polaroid.style.zIndex = 10;
+            });
+        });
+
+        // 3. Audio Player simulation / toggle
+        const musicToggle = document.getElementById('musicToggle');
+        const musicText = document.getElementById('musicText');
+        let isPlaying = false;
+        
+        // Web Audio API ambient melody simulation or toggle state
+        musicToggle.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                musicText.textContent = "Melody Playing 🎶";
+                musicToggle.classList.add('bg-white');
+            } else {
+                musicText.textContent = "Play Love Melody";
+                musicToggle.classList.remove('bg-white');
+            }
+        });
+
+        // 4. Secret Message Button interaction
+        const surpriseBtn = document.getElementById('surpriseBtn');
+        const loveNoteText = document.getElementById('loveNoteText');
+        let noteToggled = false;
+
+        surpriseBtn.addEventListener('click', () => {
+            noteToggled = !noteToggled;
+            if (noteToggled) {
+                loveNoteText.textContent = `"Gigi, you are my home, my laughter, and my greatest adventure. From October 9th when our story began, to October 23rd when my heart knew you were my forever, every single beat belongs to you. I love you endlessly, beyond all words." — Gogo`;
+                surpriseBtn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> <span>Normal Note</span>`;
+            } else {
+                loveNoteText.textContent = `"To my dearest Gigi, from the moment our paths crossed on October 9th to every breath since, you have been my greatest blessing. Saying those three words on October 23rd was the easiest truth I've ever spoken. Thank you for walking beside me through every adventure."`;
+                surpriseBtn.innerHTML = `<i class="fa-solid fa-heart"></i> <span>Open Secret Message</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

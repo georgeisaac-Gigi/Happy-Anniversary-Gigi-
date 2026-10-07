@@ -464,32 +464,10 @@ A year of our endless love together and shall it continue to endless years    </
 
 <!-- Background Audio Element (Make sure your file name matches src!) -->
 <audio id="bg-music" loop>
-    <source src="our-song.mp3" type="audio/mpeg">
+    <source src="our-song.MPEG" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 
-<!-- JavaScript for Playing Music starting from 3:03 -->
-<script>
-    let isPlaying = false;
-
-    function toggleMusicFromLetter() {
-        const music = document.getElementById('bg-music');
-        const playerText = document.getElementById('player-text');
-        const playerIcon = document.getElementById('player-icon');
-        const playerBtn = document.getElementById('letter-player-btn');
-        
-        if (!isPlaying) {
-            // Sets the starting point to exactly 3 minutes and 3 seconds (183 seconds)
-            music.currentTime = 183;
-
-            music.play().then(() => {
-                isPlaying = true;
-                playerText.textContent = "Playing our song... (Click to pause)";
-                playerIcon.textContent = "⏸️";
-                playerBtn.style.background = "linear-gradient(135deg, #ff5e62, #ff9966)";
-            }).catch(error => {
-                console.log("Audio play blocked or error:", error);
-            });
         } else {
             music.pause();
             isPlaying = false;

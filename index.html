@@ -446,10 +446,11 @@
 <!-- Interactive Love Letter & Song Note Box (Acts as the Music Player) -->
 <div id="love-letter-section" onclick="toggleMusicFromLetter()" style="max-width: 600px; margin: 40px auto; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; font-family: 'Inter', sans-serif; cursor: pointer; border: 2px solid rgba(255, 117, 140, 0.3); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 35px rgba(255,117,140,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.15)';">
     
-    <h2 style="font-family: 'Playfair Display', serif; color: #d81b60; margin-bottom: 15px;">A Little Note About This Song 🎵</h2>
+    <h2 style="font-family: 'Playfair Display', serif; color: #d81b60; margin-bottom: 15px;">To My Dearest Gigi 💖</h2>
     
     <p style="font-size: 16px; line-height: 1.8; color: #444; margin-bottom: 20px;">
-One year has passed with endless love, to many more endless years with my future wife and the love of my life    </p>
+        One year has passed filled with endless love, but this is only the beginning—here’s to countless more endless years with my future wife, and the absolute love of my life. This song is for you. ✨
+    </p>
 
     <div style="font-style: italic; color: #666; font-size: 15px; margin-bottom: 20px;">
         Forever yours,<br>
@@ -463,13 +464,13 @@ One year has passed with endless love, to many more endless years with my future
 </div>
 
 <!-- Background Audio Element -->
-<!-- NOTE: Replace "our-song.mpeg" below with your exact audio file name on GitHub -->
+<!-- TIP: Make sure your audio file is named "song.mp3" and uploaded in the main GitHub folder -->
 <audio id="bg-music" preload="auto" loop>
     <source src="our-song.mpeg" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 
-<!-- JavaScript for Playing Music Normally from the Beginning -->
+<!-- JavaScript for Playing Music -->
 <script>
     let isPlaying = false;
 
@@ -486,8 +487,8 @@ One year has passed with endless love, to many more endless years with my future
                 playerIcon.textContent = "⏸️";
                 playerBtn.style.background = "linear-gradient(135deg, #ff5e62, #ff9966)";
             }).catch(error => {
-                console.log("Audio play blocked or error:", error);
-                alert("Please make sure your .mp3 audio file is uploaded to GitHub and named correctly!");
+                console.error("Playback error:", error);
+                alert("Could not play the song! Please check if your file is named 'song.mp3' and uploaded to GitHub.");
             });
         } else {
             music.pause();

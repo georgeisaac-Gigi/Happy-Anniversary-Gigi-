@@ -449,7 +449,8 @@
     <h2 style="font-family: 'Playfair Display', serif; color: #d81b60; margin-bottom: 15px;">A Little Note About This Song 🎵</h2>
     
     <p style="font-size: 16px; line-height: 1.8; color: #444; margin-bottom: 20px;">
-A year of our endless love together and shall it continue to endless years    </p>
+        Whenever I hear this song, it always reminds me of you, Gigi. It captures every single feeling I had from the moment I first saw you on October 9, up to October 23 when I said "I love you" without a single second of hesitation. This melody is the soundtrack to our first incredible year together. ❤️
+    </p>
 
     <div style="font-style: italic; color: #666; font-size: 15px; margin-bottom: 20px;">
         Forever yours,<br>
@@ -462,12 +463,33 @@ A year of our endless love together and shall it continue to endless years    </
     </div>
 </div>
 
-<!-- Background Audio Element (Make sure your file name matches src!) -->
-<audio id="bg-music" loop>
-    <source src="our-song.MPEG" type="audio/mpeg">
+<!-- Background Audio Element -->
+<!-- NOTE: Replace "our-song.mpeg" below with your exact audio file name on GitHub -->
+<audio id="bg-music" preload="auto" loop>
+    <source src="our-song.mpeg" type="audio/mpeg">
     Your browser does not support the audio element.
 </audio>
 
+<!-- JavaScript for Playing Music Normally from the Beginning -->
+<script>
+    let isPlaying = false;
+
+    function toggleMusicFromLetter() {
+        const music = document.getElementById('bg-music');
+        const playerText = document.getElementById('player-text');
+        const playerIcon = document.getElementById('player-icon');
+        const playerBtn = document.getElementById('letter-player-btn');
+        
+        if (!isPlaying) {
+            music.play().then(() => {
+                isPlaying = true;
+                playerText.textContent = "Playing our song... (Click to pause)";
+                playerIcon.textContent = "⏸️";
+                playerBtn.style.background = "linear-gradient(135deg, #ff5e62, #ff9966)";
+            }).catch(error => {
+                console.log("Audio play blocked or error:", error);
+                alert("Please make sure your .mp3 audio file is uploaded to GitHub and named correctly!");
+            });
         } else {
             music.pause();
             isPlaying = false;

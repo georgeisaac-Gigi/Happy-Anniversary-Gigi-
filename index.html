@@ -584,3 +584,222 @@
                     ctx.fill();
 
                     updateAndDrawSparkles(ctx);
+                }
+
+                function animate() {
+                    if (!isDragging) {
+                        const springForce = (targetOffsetY - offsetY) * 0.15;
+                        velocityY = (velocityY + springForce) * 0.75;
+                        offsetY += velocityY;
+                    } else {
+                        offsetY = targetOffsetY;
+                    }
+
+                    drawSolidRopeSystem();
+                    requestAnimationFrame(animate);
+                }
+
+                function revealWebsite() {
+                    isDragging = false;
+                    const cx = width / 2;
+                    const heartCenterY = 150 + offsetY;
+                    
+                    spawnSparkle(cx, heartCenterY, true);
+
+                    // Play our song automatically upon reveal
+                    bgMusic.play().then(() => {
+                        isPlaying = true;
+                        document.getElementById('player-text').textContent = "Playing our song... (Click to pause)";
+                        document.getElementById('player-icon').textContent = "⏸️";
+                        const playerBtn = document.getElementById('letter-player-btn');
+                        if (playerBtn) playerBtn.style.background = "linear-gradient(135deg, #ff5e62, #ff9966)";
+                    }).catch(error => {
+                        console.error("Autoplay prevented or playback error:", error);
+                    });
+
+                    setTimeout(() => {
+                        overlay.classList.add('revealed');
+                        document.body.classList.remove('rope-locked');
+                    }, 150);
+                }
+
+                window.addEventListener('resize', resize);
+                canvas.addEventListener('mousedown', onStart);
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onEnd);
+
+                canvas.addEventListener('touchstart', onStart, { passive: true });
+                window.addEventListener('touchmove', onMove, { passive: true });
+                window.addEventListener('touchend', onEnd);
+
+                resize();
+                animate();
+            }
+        });
+
+        // 1. Heart Flowing Canvas Animation
+        const canvas = document.getElementById('heart-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const hearts = [];
+        const numHearts = 35;
+
+        class FallingHeart {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 14 + 8;
+                this.speedY = Math.random() * 1.5 + 0.8;
+                this.speedX = (Math.random() - 0.5) * 1;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = (Math.random() - 0.5) * 2;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.color = Math.random() > 0.5 ? '#E0A996' : '#8B263E';
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y / 50) * 0.8 + this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > canvas.height + 20) {
+                    this.reset();
+                    this.y = -20;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                ctx.beginPath();
+                let topCurveHeight = this.size * 0.3;
+                ctx.moveTo(0, topCurveHeight);
+                ctx.bezierCurveTo(
+                    0, 0,
+                    -this.size / 2, 0,
+                    -this.size / 2, topCurveHeight
+                );
+                ctx.bezierCurveTo(
+                    -this.size / 2, (this.size + topCurveHeight) / 2,
+                    0, (this.size + topCurveHeight) / 1.2,
+                    0, this.size
+                );
+                ctx.bezierCurveTo(
+                    0, (this.size + topCurveHeight) / 1.2,
+                    this.size / 2, (this.size + topCurveHeight) / 2,
+                    this.size / 2, topCurveHeight
+                );
+                ctx.bezierCurveTo(
+                    this.size / 2, 0,
+                    0, 0,
+                    0, topCurveHeight
+                );
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < numHearts; i++) {
+            hearts.push(new FallingHeart());
+        }
+
+        function animateHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
+
+        // 2. Interactive Draggable Polaroids for Mouse and Touch
+        const polaroids = document.querySelectorAll('.polaroid');
+        polaroids.forEach(polaroid => {
+            let isDragging = false;
+            let startX, startY;
+            let currentX = 0;
+            let currentY = 0;
+
+            polaroid.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                startX = e.clientX - currentX;
+                startY = e.clientY - currentY;
+                polaroid.setPointerCapture(e.pointerId);
+                polaroid.style.zIndex = 100;
+            });
+
+            polaroid.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                currentX = e.clientX - startX;
+                currentY = e.clientY - startY;
+                polaroid.style.transform = `translate(${currentX}px, ${currentY}px) rotate(0deg) scale(1.05)`;
+            });
+
+            polaroid.addEventListener('pointerup', (e) => {
+                isDragging = false;
+                polaroid.releasePointerCapture(e.pointerId);
+                polaroid.style.zIndex = 10;
+            });
+        });
+
+        // 3. Secret Message Button interaction
+        const surpriseBtn = document.getElementById('surpriseBtn');
+        const loveNoteText = document.getElementById('loveNoteText');
+        let noteToggled = false;
+
+        surpriseBtn.addEventListener('click', () => {
+            noteToggled = !noteToggled;
+            if (noteToggled) {
+                loveNoteText.textContent = `"Gigi, you are my home, my laughter, and my greatest adventure. From October 9th when our story began, to October 23rd when my heart knew you were my forever, every single beat belongs to you. I love you endlessly, beyond all words." — Gogo`;
+                surpriseBtn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> <span>Normal Note</span>`;
+            } else {
+                loveNoteText.textContent = `"To my dearest Gigi, from the moment our paths crossed on October 9th to every breath since, you have been my greatest blessing. Saying those three words on October 23rd was the easiest truth I've ever spoken. Thank you for walking beside me through every adventure."`;
+                surpriseBtn.innerHTML = `<i class="fa-solid fa-heart"></i> <span>Open Secret Message</span>`;
+            }
+        });
+
+        // 4. Anniversary Letter Music Card Toggle
+        function toggleMusicFromLetter() {
+            const music = document.getElementById('bg-music');
+            const playerText = document.getElementById('player-text');
+            const playerIcon = document.getElementById('player-icon');
+            const playerBtn = document.getElementById('letter-player-btn');
+            
+            if (!isPlaying) {
+                music.play().then(() => {
+                    isPlaying = true;
+                    playerText.textContent = "Playing our song... (Click to pause)";
+                    playerIcon.textContent = "⏸️";
+                    playerBtn.style.background = "linear-gradient(135deg, #ff5e62, #ff9966)";
+                }).catch(error => {
+                    console.error("Playback error:", error);
+                    alert("Could not play the song! Please check if your audio file is named 'our-song.mpeg' and uploaded to your repository.");
+                });
+            } else {
+                music.pause();
+                isPlaying = false;
+                playerText.textContent = "Click anywhere here to play our song";
+                playerIcon.textContent = "▶️";
+                playerBtn.style.background = "linear-gradient(135deg, #E0A996, #8B263E)";
+            }
+        }
+    </script>
+</body>
+</html>

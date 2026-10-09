@@ -36,11 +36,21 @@
         }
     </script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #FFF0F3;
             color: #4A3B3C;
             overflow-x: hidden;
+        }
+
+        body.rope-locked {
+            overflow: hidden !important;
         }
         
         .font-script {
@@ -115,20 +125,70 @@
         .animate-glow {
             animation: pulseGlow 3s infinite ease-in-out;
         }
+
+        /* --- PULL ROPE OVERLAY STYLES --- */
+        #rope-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: #111625 !important;
+            z-index: 999999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease-in-out;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #rope-overlay.revealed {
+            transform: translateY(-100vh) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .rope-instruction {
+            margin-top: 40px;
+            color: #ffffff;
+            font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+            letter-spacing: 2px;
+            text-align: center;
+            pointer-events: none;
+            z-index: 1000000;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            opacity: 0.9;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        #pull-canvas {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        #pull-canvas:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
-<body class="relative min-h-screen selection:bg-roseGold-light selection:text-romanticRed">
+<body class="rope-locked relative min-h-screen selection:bg-roseGold-light selection:text-romanticRed">
+
+    <!-- PULL ROPE OVERLAY -->
+    <div id="rope-overlay">
+        <div class="rope-instruction">Pull the heart down to reveal ☟</div>
+        <canvas id="pull-canvas"></canvas>
+    </div>
 
     <!-- Heart Flowing Background Canvas -->
     <canvas id="heart-canvas"></canvas>
-
-    <!-- Floating Music & Audio Controller -->
-    <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
-        <button id="musicToggle" class="glass-card px-4 py-2.5 rounded-full flex items-center gap-2 text-romanticRed hover:bg-white transition-all shadow-lg text-sm font-medium">
-            <i class="fa-solid fa-music animate-bounce"></i>
-            <span id="musicText">Play Love Melody</span>
-        </button>
-    </div>
 
     <!-- Hero Section -->
     <header class="relative z-10 min-h-screen flex flex-col items-center justify-center text-center px-4 py-20">
@@ -254,6 +314,7 @@
             <div class="polaroid w-64 transform rotate-[3deg] hover:rotate-0" style="touch-action: none;" draggable="true">
                 <img src="love.jpeg" alt="Memory" class="w-full h-56 object-cover rounded-sm mb-3">
                 <p class="font-script text-2xl text-romanticRed text-center">taken with all the love in the word 🌹</p>
+            </div>
         </div>
     </section>
 
@@ -298,8 +359,7 @@
         </div>
     </section>
 
-    <!-- Background Audio Element -->
-    <!-- TIP: Ensure your audio file is named "our-song.mpeg" and uploaded to your GitHub repository folder -->
+    <!-- Background Audio Element playing our-song.mpeg -->
     <audio id="bg-music" preload="auto" loop>
         <source src="our-song.mpeg" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -313,210 +373,214 @@
 
     <!-- JavaScript Code -->
     <script>
-        // 1. Heart Flowing Canvas Animation
-        const canvas = document.getElementById('heart-canvas');
-        const ctx = canvas.getContext('2d');
+        let isPlaying = false;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        // --- PULL ROPE ENGINE & PHYSICS SCRIPT ---
+        window.addEventListener('load', () => {
+            const canvas = document.getElementById('pull-canvas');
+            const overlay = document.getElementById('rope-overlay');
+            const bgMusic = document.getElementById('bg-music');
 
-        const hearts = [];
-        const numHearts = 35;
+            // Sparkle Particle System
+            const sparkles = [];
 
-        class FallingHeart {
-            constructor() {
-                this.reset();
-            }
+            function spawnSparkle(x, y, isBurst = false) {
+                const count = isBurst ? 20 : 2;
+                const colors = ['#ffd700', '#ffffff', '#ff7675', '#f1c40f', '#ffb6c1'];
 
-            reset() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * -canvas.height;
-                this.size = Math.random() * 14 + 8;
-                this.speedY = Math.random() * 1.5 + 0.8;
-                this.speedX = (Math.random() - 0.5) * 1;
-                this.rotation = Math.random() * 360;
-                this.rotationSpeed = (Math.random() - 0.5) * 2;
-                this.opacity = Math.random() * 0.5 + 0.3;
-                this.color = Math.random() > 0.5 ? '#E0A996' : '#8B263E';
-            }
-
-            update() {
-                this.y += this.speedY;
-                this.x += Math.sin(this.y / 50) * 0.8 + this.speedX;
-                this.rotation += this.rotationSpeed;
-
-                if (this.y > canvas.height + 20) {
-                    this.reset();
-                    this.y = -20;
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = isBurst ? Math.random() * 6 + 2 : Math.random() * 2 + 0.5;
+                    sparkles.push({
+                        x: x + (Math.random() - 0.5) * 30,
+                        y: y + (Math.random() - 0.5) * 30,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - (isBurst ? 1 : 0.5),
+                        size: Math.random() * 4 + 2,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        alpha: 1,
+                        decay: Math.random() * 0.02 + 0.015,
+                        rotation: Math.random() * Math.PI
+                    });
                 }
             }
 
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate((this.rotation * Math.PI) / 180);
-                ctx.globalAlpha = this.opacity;
-                ctx.fillStyle = this.color;
+            function updateAndDrawSparkles(ctx) {
+                for (let i = sparkles.length - 1; i >= 0; i--) {
+                    const p = sparkles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.alpha -= p.decay;
 
-                ctx.beginPath();
-                let topCurveHeight = this.size * 0.3;
-                ctx.moveTo(0, topCurveHeight);
-                // Top left curve
-                ctx.bezierCurveTo(
-                    0, 0,
-                    -this.size / 2, 0,
-                    -this.size / 2, topCurveHeight
-                );
-                // Bottom left curve
-                ctx.bezierCurveTo(
-                    -this.size / 2, (this.size + topCurveHeight) / 2,
-                    0, (this.size + topCurveHeight) / 1.2,
-                    0, this.size
-                );
-                // Bottom right curve
-                ctx.bezierCurveTo(
-                    0, (this.size + topCurveHeight) / 1.2,
-                    this.size / 2, (this.size + topCurveHeight) / 2,
-                    this.size / 2, topCurveHeight
-                );
-                // Top right curve
-                ctx.bezierCurveTo(
-                    this.size / 2, 0,
-                    0, 0,
-                    0, topCurveHeight
-                );
-                ctx.closePath();
-                ctx.fill();
-                ctx.restore();
+                    if (p.alpha <= 0) {
+                        sparkles.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation);
+                    ctx.beginPath();
+                    for (let j = 0; j < 4; j++) {
+                        ctx.rotate(Math.PI / 2);
+                        ctx.lineTo(0, p.size);
+                        ctx.lineTo(0, p.size * 0.3);
+                    }
+                    ctx.fill();
+                    ctx.restore();
+                }
             }
-        }
 
-        for (let i = 0; i < numHearts; i++) {
-            hearts.push(new FallingHeart());
-        }
+            if (canvas && overlay) {
+                const ctx = canvas.getContext('2d');
+                let width = 0, height = 0;
+                let isDragging = false;
+                let startDragY = 0;
 
-        function animateHearts() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            hearts.forEach(heart => {
-                heart.update();
-                heart.draw();
-            });
-            requestAnimationFrame(animateHearts);
-        }
-        animateHearts();
+                let offsetY = 0;
+                let targetOffsetY = 0;
+                let velocityY = 0;
 
-        // 2. Interactive Draggable Polaroids for Mouse and Touch
-        const polaroids = document.querySelectorAll('.polaroid');
-        polaroids.forEach(polaroid => {
-            let isDragging = false;
-            let startX, startY;
-            let currentX = 0;
-            let currentY = 0;
+                const pullThreshold = 280; 
 
-            polaroid.addEventListener('pointerdown', (e) => {
-                isDragging = true;
-                startX = e.clientX - currentX;
-                startY = e.clientY - currentY;
-                polaroid.setPointerCapture(e.pointerId);
-                polaroid.style.zIndex = 100;
-            });
+                function resize() {
+                    width = canvas.width = window.innerWidth || document.documentElement.clientWidth || 800;
+                    height = canvas.height = window.innerHeight || document.documentElement.clientHeight || 600;
+                }
 
-            polaroid.addEventListener('pointermove', (e) => {
-                if (!isDragging) return;
-                currentX = e.clientX - startX;
-                currentY = e.clientY - startY;
-                polaroid.style.transform = `translate(${currentX}px, ${currentY}px) rotate(0deg) scale(1.05)`;
-            });
+                function getPointerPos(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return { x: clientX - rect.left, y: clientY - rect.top };
+                }
 
-            polaroid.addEventListener('pointerup', (e) => {
-                isDragging = false;
-                polaroid.releasePointerCapture(e.pointerId);
-                polaroid.style.zIndex = 10;
-            });
-        });
+                function onStart(e) {
+                    const pos = getPointerPos(e);
+                    const centerX = width / 2;
+                    if (Math.abs(pos.x - centerX) < 140 && pos.y > 0 && pos.y < height * 0.85) {
+                        isDragging = true;
+                        startDragY = pos.y - offsetY;
+                    }
+                }
 
-        // 3. Audio Player Controller (Top Navbar Button)
-        const musicToggle = document.getElementById('musicToggle');
-        const musicText = document.getElementById('musicText');
-        const bgMusic = document.getElementById('bg-music');
-        let topNavPlaying = false;
-        
-        musicToggle.addEventListener('click', () => {
-            topNavPlaying = !topNavPlaying;
-            if (topNavPlaying) {
-                bgMusic.play().then(() => {
-                    musicText.textContent = "Melody Playing 🎶";
-                    musicToggle.classList.add('bg-white');
-                    document.getElementById('player-text').textContent = "Playing our song... (Click to pause)";
-                    document.getElementById('player-icon').textContent = "⏸️";
-                    isPlaying = true;
-                }).catch(error => {
-                    console.error("Playback error:", error);
-                    topNavPlaying = false;
-                });
-            } else {
-                bgMusic.pause();
-                musicText.textContent = "Play Love Melody";
-                musicToggle.classList.remove('bg-white');
-                document.getElementById('player-text').textContent = "Click anywhere here to play our song";
-                document.getElementById('player-icon').textContent = "▶️";
-                isPlaying = false;
-            }
-        });
+                function onMove(e) {
+                    if (!isDragging) return;
+                    const pos = getPointerPos(e);
+                    targetOffsetY = Math.max(0, pos.y - startDragY);
 
-        // 4. Secret Message Button interaction
-        const surpriseBtn = document.getElementById('surpriseBtn');
-        const loveNoteText = document.getElementById('loveNoteText');
-        let noteToggled = false;
+                    if (targetOffsetY > 10) {
+                        const cx = width / 2;
+                        const heartCenterY = 150 + offsetY;
+                        spawnSparkle(cx + (Math.random() - 0.5) * 50, heartCenterY + (Math.random() - 0.5) * 50);
+                    }
 
-        surpriseBtn.addEventListener('click', () => {
-            noteToggled = !noteToggled;
-            if (noteToggled) {
-                loveNoteText.textContent = `"Gigi, you are my home, my laughter, and my greatest adventure. From October 9th when our story began, to October 23rd when my heart knew you were my forever, every single beat belongs to you. I love you endlessly, beyond all words." — Gogo`;
-                surpriseBtn.innerHTML = `<i class="fa-solid fa-rotate-left"></i> <span>Normal Note</span>`;
-            } else {
-                loveNoteText.textContent = `"To my dearest Gigi, from the moment our paths crossed on October 9th to every breath since, you have been my greatest blessing. Saying those three words on October 23rd was the easiest truth I've ever spoken. Thank you for walking beside me through every adventure."`;
-                surpriseBtn.innerHTML = `<i class="fa-solid fa-heart"></i> <span>Open Secret Message</span>`;
-            }
-        });
+                    if (targetOffsetY > pullThreshold) {
+                        revealWebsite();
+                    }
+                }
 
-        // 5. Anniversary Letter Music Card Toggle
-        let isPlaying = false;
+                function onEnd() {
+                    isDragging = false;
+                    targetOffsetY = 0;
+                }
 
-        function toggleMusicFromLetter() {
-            const music = document.getElementById('bg-music');
-            const playerText = document.getElementById('player-text');
-            const playerIcon = document.getElementById('player-icon');
-            const playerBtn = document.getElementById('letter-player-btn');
-            
-            if (!isPlaying) {
-                music.play().then(() => {
-                    isPlaying = true;
-                    topNavPlaying = true;
-                    playerText.textContent = "Playing our song... (Click to pause)";
-                    playerIcon.textContent = "⏸️";
-                    playerBtn.style.background = "linear-gradient(135deg, #ff5e62, #ff9966)";
-                    musicText.textContent = "Melody Playing 🎶";
-                    musicToggle.classList.add('bg-white');
-                }).catch(error => {
-                    console.error("Playback error:", error);
-                    alert("Could not play the song! Please check if your audio file is named 'our-song.mpeg' (or matches your source tag) and uploaded to your GitHub repository.");
-                });
-            } else {
-                music.pause();
-                isPlaying = false;
-                topNavPlaying = false;
-                playerText.textContent = "Click anywhere here to play our song";
-                playerIcon.textContent = "▶️";
-                playerBtn.style.background = "linear-gradient(135deg, #E0A996, #8B263E)";
-                musicText.textContent = "Play Love Melody";
-                musicToggle.classList.remove('bg-white');
-            }
-        }
-    </script>
-</body>
-</html>
+                function getHeartPoints(cx, cy, scale) {
+                    const points = [];
+                    const totalPoints = 60;
+                    for (let i = 0; i <= totalPoints; i++) {
+                        const t = (i / totalPoints) * Math.PI * 2;
+                        const x = 16 * Math.pow(Math.sin(t), 3);
+                        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                        points.push({
+                            x: cx + x * scale,
+                            y: cy + y * scale
+                        });
+                    }
+                    return points;
+                }
+
+                function drawRopePath(points) {
+                    if (points.length === 0) return;
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length; i++) {
+                        ctx.lineTo(points[i].x, points[i].y);
+                    }
+                    ctx.closePath();
+
+                    ctx.lineWidth = 10;
+                    ctx.strokeStyle = '#c0392b';
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
+
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#ff7675';
+                    ctx.stroke();
+                }
+
+                function drawSolidRopeSystem() {
+                    ctx.clearRect(0, 0, width, height);
+
+                    const cx = width / 2;
+                    const topY = 0;
+                    const scale = Math.min(width, height) < 600 ? 3.5 : 4.5;
+                    const heartCenterY = 150 + offsetY; 
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 8, topY);
+                    ctx.lineTo(cx - 8, heartCenterY - 14 * scale);
+                    ctx.moveTo(cx + 8, topY);
+                    ctx.lineTo(cx + 8, heartCenterY - 14 * scale);
+                    ctx.lineWidth = 6;
+                    ctx.strokeStyle = '#c0392b';
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 8, topY);
+                    ctx.lineTo(cx - 8, heartCenterY - 14 * scale);
+                    ctx.moveTo(cx + 8, topY);
+                    ctx.lineTo(cx + 8, heartCenterY - 14 * scale);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#ff7675';
+                    ctx.stroke();
+
+                    const heartPoints = getHeartPoints(cx, heartCenterY, scale);
+                    drawRopePath(heartPoints);
+
+                    ctx.beginPath();
+                    ctx.arc(cx, heartCenterY - 14 * scale, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = '#c0392b';
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#ff7675';
+                    ctx.stroke();
+
+                    const bottomHeartY = heartCenterY + 16 * scale;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(cx, bottomHeartY);
+                    ctx.lineTo(cx, bottomHeartY + 22);
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = '#c0392b';
+                    ctx.stroke();
+
+                    const ringY = bottomHeartY + 40;
+                    ctx.beginPath();
+                    ctx.arc(cx, ringY, 18, 0, Math.PI * 2);
+                    ctx.fillStyle = '#d4af37';
+                    ctx.fill();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(cx, ringY, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = '#111625';
+                    ctx.fill();
+
+                    updateAndDrawSparkles(ctx);
